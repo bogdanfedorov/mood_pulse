@@ -1,5 +1,5 @@
-import { DataUpdateTick, MOOD_LABELS } from "@/config";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { MOOD_LABELS } from "@/config";
+import useMoodStore from "@/store/moodStore";
 import React, { useEffect, useState } from "react";
 import { Dimensions, ScrollView, StyleSheet, Text } from "react-native";
 import { LineChart } from "react-native-chart-kit";
@@ -21,6 +21,7 @@ function formatDate(dateStr: string): string {
 }
 
 export default function ChartScreen() {
+  const { moodRecords } = useMoodStore();
   const [chartData, setChartData] = useState<ChartData>({
     labels: [],
     data: [],
@@ -28,11 +29,8 @@ export default function ChartScreen() {
 
   useEffect(() => {
     const load = async () => {
-      const raw = await AsyncStorage.getItem("mood_entries");
-      const entries: MoodEntry[] = raw ? JSON.parse(raw) : [];
-
       const grouped: Record<string, number[]> = {};
-      entries.forEach((entry: MoodEntry) => {
+      moodRecords.forEach((entry: MoodEntry) => {
         const day = entry.date.slice(0, 10);
         if (!grouped[day]) grouped[day] = [];
         grouped[day].push(entry.mood);
@@ -51,12 +49,9 @@ export default function ChartScreen() {
           moods.reduce((a: number, b: number) => a + b, 0) / moods.length;
         return Number(avg.toFixed(2));
       });
-      console.log(data);
       setChartData({ labels, data });
     };
     load();
-    const interval = setInterval(load, DataUpdateTick);
-    return () => clearInterval(interval);
   }, []);
 
   return (

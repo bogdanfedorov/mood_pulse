@@ -1,5 +1,5 @@
 import { MOOD_LABELS } from "@/config";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import useMoodStore from "@/store/moodStore";
 import React, { useState } from "react";
 import {
   Alert,
@@ -14,6 +14,7 @@ export default function MoodScreen() {
   const [selectedMood, setSelectedMood] = useState<number | null>(null);
   const [comment, setComment] = useState("");
   const [saving, setSaving] = useState(false);
+  const { addMoodRecord } = useMoodStore();
 
   const saveMood = async () => {
     if (selectedMood === null) {
@@ -22,15 +23,12 @@ export default function MoodScreen() {
     }
     setSaving(true);
     const entry = {
-      date: new Date().toISOString().slice(0, 10), // YYYY-MM-DD
-      mood: selectedMood, // 1-5
+      date: new Date().toISOString().slice(0, 10),
+      mood: selectedMood,
       comment,
     };
     try {
-      const prev = await AsyncStorage.getItem("mood_entries");
-      const entries = prev ? JSON.parse(prev) : [];
-      entries.unshift(entry);
-      await AsyncStorage.setItem("mood_entries", JSON.stringify(entries));
+      await addMoodRecord(entry);
       setComment("");
       setSelectedMood(null);
       Alert.alert("Saved!");

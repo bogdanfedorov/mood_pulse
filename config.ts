@@ -7,5 +7,3 @@ export const MOOD_LABELS = [
   { value: 2, emoji: "😕", label: "Bad" },
   { value: 1, emoji: "😣", label: "Very Bad" },
 ];
-
-export const DataUpdateTick = 1000;

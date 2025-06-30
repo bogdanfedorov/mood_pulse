@@ -1,26 +1,16 @@
-import { DataUpdateTick, MOOD_LABELS, MoodEntry } from "@/config";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { useEffect, useState } from "react";
+import { MOOD_LABELS } from "@/config";
+import useMoodStore from "@/store/moodStore";
+import React from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 
 export default function HistoryScreen() {
-  const [entries, setEntries] = useState<MoodEntry[]>([]);
-
-  useEffect(() => {
-    const load = async () => {
-      const data = await AsyncStorage.getItem("mood_entries");
-      setEntries(data ? JSON.parse(data) : []);
-    };
-    const interval = setInterval(load, DataUpdateTick);
-    load();
-    return () => clearInterval(interval);
-  }, []);
+  const { moodRecords } = useMoodStore();
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Mood History</Text>
       <FlatList
-        data={entries}
+        data={moodRecords}
         keyExtractor={(_, idx) => idx.toString()}
         renderItem={({ item }) => (
           <View style={styles.item}>
